@@ -25,7 +25,8 @@ impl Transformer {
             repl: Default::default(),
             rng: StdRng::seed_from_u64(seed),
         };
-        t.repl.insert("127.0.0.1".into(), "127.0.0.1".as_bytes().into());
+        // TODO this could be an optional multiple command argument
+        t.repl.insert("127.0.0.1".into(), "127.0.0.1".as_bytes().into()); 
         t
     }
 
@@ -87,8 +88,8 @@ impl Transformer {
             let src = unsafe {
                 src.as_bytes_mut()
             };
-            for i in 0..src.len() {
-                src[i] = self.random_digit(36);
+            for i in src.iter_mut() {
+                *i = self.random_digit(36);
             }
             self.repl.insert(original, (&*src).into());
         }
@@ -112,7 +113,7 @@ impl Transformer {
             .map(|mat| mat.range())
             .collect::<Vec<Range<usize>>>();
         for range in ranges {
-            self.anonymize_ip6(&mut line[range.clone()]);
+            self.anonymize_ip6(&mut line[range]);
         }
     }
 

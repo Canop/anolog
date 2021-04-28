@@ -10,7 +10,7 @@ use {
 };
 
 fn main() -> io::Result<()> {
-    let in_path = std::env::args().skip(1).next().expect("path of the log file must be the first argument");
+    let in_path = std::env::args().nth(1).expect("path of the log file must be the first argument");
     let log_file = File::open(in_path)?;
     let mut reader = BufReader::new(log_file);
     let mut line = String::new();
