@@ -1,0 +1,16 @@
+[package]
+name = "anolog"
+version = "0.1.0"
+authors = ["dystroy <denys.seguret@gmail.com>"]
+repository = "https://github.com/Canop/anolog"
+description = "anonymize access log files"
+edition = "2018"
+keywords = ["anonymize", "random", "log"]
+license = "MIT"
+categories = []
+
+[dependencies]
+lazy-regex = "0.1.3"
+lazy_static = "1.4"
+rand = "0.8"
+regex = "1.4"
