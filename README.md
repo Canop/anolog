@@ -35,5 +35,5 @@ cargo install anolog
 ## Usage:
 
 ```bash
-anolog path/to/server.access.log > anonym.log
+anolog path/to/file.log > anonym.log
 ```
