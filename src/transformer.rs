@@ -8,14 +8,25 @@ use {
     },
     std::{
         collections::HashMap,
+        net::Ipv6Addr,
         ops::Range,
+        str::FromStr,
     },
 };
 
 
+#[derive(Debug, Default)]
+pub struct ChangeStats {
+    ip4: usize,
+    ip6: usize,
+    query_values: usize,
+    lines: usize,
+}
+
 pub struct Transformer {
     repl: HashMap<String, Box<[u8]>>,
     rng: StdRng,
+    pub stats: ChangeStats,
 }
 
 impl Transformer {
@@ -24,6 +35,7 @@ impl Transformer {
         let mut t = Self {
             repl: Default::default(),
             rng: StdRng::seed_from_u64(seed),
+            stats: ChangeStats::default(),
         };
         t.repl.insert("127.0.0.1".into(), "127.0.0.1".as_bytes().into());
         t
@@ -101,18 +113,22 @@ impl Transformer {
             .collect::<Vec<Range<usize>>>();
         for range in ranges {
             self.anonymize_ip4(&mut line[range]);
+            self.stats.ip4 += 1;
         }
     }
 
     pub fn transform_all_ip6(&mut self, line: &mut String) {
-        // I just invented this with only a few dozen cases...
-        // I don't even know IPv6 well enough, so you might want to check...
-        let ranges = regex!(r#"\b((([a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,7}(:[a-fA-F0-9]{1,4}){1,7})|(([a-fA-F0-9]{1,4}:){6}:))"#)
+        // IPv6 format is painful. A full regex not accepting unwanted strings
+        // (for example dates) would be hard to write. So I combine a very
+        // permissive and fast one with a filter parsing the matches
+        let ranges = regex!(r#"[a-fA-F0-9:]{3,40}"#)
             .find_iter(line)
+            .filter(|mat| Ipv6Addr::from_str(mat.as_str()).is_ok())
             .map(|mat| mat.range())
             .collect::<Vec<Range<usize>>>();
         for range in ranges {
             self.anonymize_ip6(&mut line[range.clone()]);
+            self.stats.ip6 += 1;
         }
     }
 
@@ -123,12 +139,14 @@ impl Transformer {
             .collect::<Vec<Range<usize>>>();
         for range in ranges {
             let query = &mut line[range];
+            // TODO we could have a whitelist of query name to not change
             let value_ranges = regex!(r#"(?:^|&)[^=&]+=([^&=]+)"#)
                 .captures_iter(query)
                 .map(|capture| capture.get(1).unwrap().range())
                 .collect::<Vec<Range<usize>>>();
             for value_range in value_ranges {
                 self.anonymize_query_value(&mut query[value_range]);
+                self.stats.query_values += 1;
             }
         }
     }
@@ -137,5 +155,6 @@ impl Transformer {
         self.transform_all_ip6(line);
         self.transform_all_ip4(line);
         self.transform_all_queries(line);
+        self.stats.lines += 1;
     }
 }
