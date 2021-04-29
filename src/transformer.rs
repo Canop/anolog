@@ -53,21 +53,33 @@ impl Transformer {
                 src.as_bytes_mut().copy_from_slice(rip);
             }
         } else {
-            let mut digits_count = 0;
+            let ranges = regex!(r#"\d+"#)
+                .find_iter(src)
+                .map(|mat| mat.range())
+                .collect::<Vec<Range<usize>>>();
             let original = src.to_string();
             let src = unsafe {
                 src.as_bytes_mut()
             };
-            for i in (0..src.len()).rev() {
-                if src[i] == b'.' {
-                    digits_count = 0;
-                } else if digits_count < 2 {
-                    src[i] = match digits_count {
-                        0 => self.random_digit(0..10, 10),
-                        1 => self.random_digit(1..5, 10),
-                        _ => self.random_digit(1..3, 10),
-                    };
-                    digits_count += 1;
+            for r in ranges {
+                match r.end-r.start {
+                    1 => {
+                        src[r.start] = self.random_digit(0..10, 10);
+                    }
+                    2 => {
+                        src[r.start] = self.random_digit(1..10, 10);
+                        src[r.start + 1] = self.random_digit(0..10, 10);
+                    }
+                    3 => {
+                        let new_val = self.rng.gen_range(100..256).to_string();
+                        let new_val = new_val.as_bytes();
+                        src[r.start] = new_val[0];
+                        src[r.start + 1] = new_val[1];
+                        src[r.start + 2] = new_val[2];
+                    }
+                    _ => {
+                        unreachable!();
+                    }
                 }
             }
             self.repl.insert(original, (&*src).into());

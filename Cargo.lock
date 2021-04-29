@@ -11,7 +11,7 @@ dependencies = [
 
 [[package]]
 name = "anolog"
-version = "0.1.2"
+version = "0.1.4"
 dependencies = [
  "lazy-regex",
  "lazy_static",
