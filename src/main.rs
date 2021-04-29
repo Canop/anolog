@@ -1,3 +1,5 @@
+use std::io::Write;
+
 mod transformer;
 
 use {
@@ -10,7 +12,9 @@ use {
 };
 
 fn main() -> io::Result<()> {
-    let in_path = std::env::args().nth(1).expect("path of the log file must be the first argument");
+    let in_path = std::env::args()
+        .nth(1)
+        .expect("path of the log file must be the first argument");
     let log_file = File::open(in_path)?;
     let mut reader = BufReader::new(log_file);
     let mut line = String::new();
@@ -23,6 +27,7 @@ fn main() -> io::Result<()> {
         line.clear();
         count += 1;
     }
+    let _ = std::io::stdout().flush(); // avoid confision for terminal output
     eprintln!("transformed {} lines", count);
     Ok(())
 }
