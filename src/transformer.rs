@@ -41,8 +41,8 @@ impl Transformer {
         t
     }
 
-    fn random_digit(&mut self, radix: u32) -> u8 {
-        let n = self.rng.gen_range(0..radix);
+    fn random_digit(&mut self, range: Range<u32>, radix: u32) -> u8 {
+        let n = self.rng.gen_range(range);
         let c = std::char::from_digit(n, radix).unwrap();
         c as u8
     }
@@ -62,7 +62,11 @@ impl Transformer {
                 if src[i] == b'.' {
                     digits_count = 0;
                 } else if digits_count < 2 {
-                    src[i] = self.random_digit(10);
+                    src[i] = match digits_count {
+                        0 => self.random_digit(0..10, 10),
+                        1 => self.random_digit(0..5, 10),
+                        _ => self.random_digit(1..3, 10),
+                    };
                     digits_count += 1;
                 }
             }
@@ -82,7 +86,7 @@ impl Transformer {
             };
             for i in (0..src.len()).rev() {
                 if src[i] != b':' {
-                    src[i] = self.random_digit(16);
+                    src[i] = self.random_digit(0..16, 16);
                 }
             }
             self.repl.insert(original, (&*src).into());
@@ -100,7 +104,7 @@ impl Transformer {
                 src.as_bytes_mut()
             };
             for i in src.iter_mut() {
-                *i = self.random_digit(36);
+                *i = self.random_digit(0..36, 36);
             }
             self.repl.insert(original, (&*src).into());
         }
