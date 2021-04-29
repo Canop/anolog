@@ -10,6 +10,7 @@
 [s3]: https://miaou.dystroy.org/static/shields/room.svg
 [l3]: https://miaou.dystroy.org/3768?rust
 
+## Features
 
 Anolog anonymizes access log files.
 
@@ -21,11 +22,18 @@ To keep the likelihood of the resulting log files, and keep them as useful as po
 * A replacement is always the size of the replaced
 * localhost IP aren't replaced
 
-Usage:
+:warning: Anolog comes without any kind of garantee. If a file is converted with anolog, it may still contain private data and may still help an attacker.
+
+## Installation:
+
+You need the [rust toolchain](https://rustup.rs).
+
+```bash
+cargo install anolog
+```
+
+## Usage:
 
 ```bash
 anolog path/to/server.access.log > anonym.log
 ```
-
-
-:warning: Anolog comes without any kind of garantee. If a file is converted with anolog, it may still contain private data and may still help an attacker.
