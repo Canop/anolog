@@ -1,32 +1,33 @@
 use {
     lazy_regex::regex,
     lazy_static::lazy_static,
-    rand::{
-        rngs::StdRng,
-        Rng,
-        SeedableRng,
-    },
+    rand::{rngs::StdRng, Rng, SeedableRng},
     std::{
         collections::HashMap,
+        net::{Ipv4Addr, Ipv6Addr},
         ops::Range,
+        str::FromStr,
     },
 };
 
-
 pub struct Transformer {
-    repl: HashMap<String, Box<[u8]>>,
+    ipv4: HashMap<String, Box<[u8]>>,
+    ipv6: HashMap<String, Box<[u8]>>,
+    query: HashMap<String, Box<[u8]>>,
     rng: StdRng,
 }
 
 impl Transformer {
-
     pub fn from_seed(seed: u64) -> Self {
         let mut t = Self {
-            repl: Default::default(),
+            ipv4: Default::default(),
+            ipv6: Default::default(),
+            query: Default::default(),
             rng: StdRng::seed_from_u64(seed),
         };
         // TODO this could be an optional multiple command argument
-        t.repl.insert("127.0.0.1".into(), "127.0.0.1".as_bytes().into()); 
+        t.ipv4
+            .insert("127.0.0.1".into(), "127.0.0.1".as_bytes().into());
         t
     }
 
@@ -37,16 +38,14 @@ impl Transformer {
     }
 
     pub fn anonymize_ip4(&mut self, src: &mut str) {
-        if let Some(rip) = self.repl.get(src) {
+        if let Some(rip) = self.ipv4.get(src) {
             unsafe {
                 src.as_bytes_mut().copy_from_slice(rip);
             }
         } else {
             let mut digits_count = 0;
             let original = src.to_string();
-            let src = unsafe {
-                src.as_bytes_mut()
-            };
+            let src = unsafe { src.as_bytes_mut() };
             for i in (0..src.len()).rev() {
                 if src[i] == b'.' {
                     digits_count = 0;
@@ -55,65 +54,57 @@ impl Transformer {
                     digits_count += 1;
                 }
             }
-            self.repl.insert(original, (&*src).into());
+            self.ipv4.insert(original, (&*src).into());
         }
     }
 
+    // this doesn't do a good job on ip like 0000:0000:0000:0000:0000:ffff:192.168.100.228
     pub fn anonymize_ip6(&mut self, src: &mut str) {
-        if let Some(rip) = self.repl.get(src) {
+        if let Some(rip) = self.ipv6.get(src) {
             unsafe {
                 src.as_bytes_mut().copy_from_slice(rip);
             }
         } else {
             let original = src.to_string();
-            let src = unsafe {
-                src.as_bytes_mut()
-            };
+            let src = unsafe { src.as_bytes_mut() };
             for i in (0..src.len()).rev() {
                 if src[i] != b':' {
                     src[i] = self.random_digit(16);
                 }
             }
-            self.repl.insert(original, (&*src).into());
+            self.ipv6.insert(original, (&*src).into());
         }
     }
 
     pub fn anonymize_query_value(&mut self, src: &mut str) {
-        if let Some(rip) = self.repl.get(src) {
+        if let Some(rip) = self.query.get(src) {
             unsafe {
                 src.as_bytes_mut().copy_from_slice(rip);
             }
         } else {
             let original = src.to_string();
-            let src = unsafe {
-                src.as_bytes_mut()
-            };
+            let src = unsafe { src.as_bytes_mut() };
             for i in src.iter_mut() {
                 *i = self.random_digit(36);
             }
-            self.repl.insert(original, (&*src).into());
+            self.query.insert(original, (&*src).into());
         }
     }
 
-    pub fn transform_all_ip4(&mut self, line: &mut String) {
-        let ranges = regex!(r#"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"#)
+    pub fn transform_all_ip(&mut self, line: &mut String) {
+        let ranges = regex!(r#"[a-fA-F0-9:.]{3,46}"#)
             .find_iter(line)
             .map(|mat| mat.range())
             .collect::<Vec<Range<usize>>>();
         for range in ranges {
-            self.anonymize_ip4(&mut line[range]);
-        }
-    }
-
-    pub fn transform_all_ip6(&mut self, line: &mut String) {
-        // I just invented this with only a few dozen cases...
-        // I don't even know IPv6 well enough, so you might want to check...
-        let ranges = regex!(r#"\b((([a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,7}(:[a-fA-F0-9]{1,4}){1,7})|(([a-fA-F0-9]{1,4}:){6}:))"#)
-            .find_iter(line)
-            .map(|mat| mat.range())
-            .collect::<Vec<Range<usize>>>();
-        for range in ranges {
-            self.anonymize_ip6(&mut line[range]);
+            if let Ok(_ipv6) = Ipv6Addr::from_str(&line[range.clone()]) {
+//                eprint!("One ipv6 detected: {}", ipv6);
+                self.anonymize_ip6(&mut line[range]);
+            }
+            else if let Ok(_ipv4) = Ipv4Addr::from_str(&line[range.clone()]) {
+//                eprint!("One ipv4 detected: {}", ipv4);
+                self.anonymize_ip4(&mut line[range]);
+            }
         }
     }
 
@@ -135,8 +126,7 @@ impl Transformer {
     }
 
     pub fn transform_line(&mut self, line: &mut String) {
-        self.transform_all_ip6(line);
-        self.transform_all_ip4(line);
+        self.transform_all_ip(line);
         self.transform_all_queries(line);
     }
 }
