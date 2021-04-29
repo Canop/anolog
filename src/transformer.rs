@@ -64,7 +64,7 @@ impl Transformer {
                 } else if digits_count < 2 {
                     src[i] = match digits_count {
                         0 => self.random_digit(0..10, 10),
-                        1 => self.random_digit(0..5, 10),
+                        1 => self.random_digit(1..5, 10),
                         _ => self.random_digit(1..3, 10),
                     };
                     digits_count += 1;
