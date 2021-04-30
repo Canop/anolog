@@ -1,1 +1,5 @@
 /target
+*.zip
+build
+deploy.sh
+releases

@@ -123,7 +123,7 @@ impl Transformer {
     }
 
     pub fn transform_all_ip4(&mut self, line: &mut String) {
-        let ranges = regex!(r#"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"#)
+        let ranges = regex!(r#"\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b"#)
             .find_iter(line)
             .map(|mat| mat.range())
             .collect::<Vec<Range<usize>>>();

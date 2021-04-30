@@ -14,7 +14,7 @@
 
 Anolog anonymizes access log files.
 
-It replaces IPv4, Ipv6 and query parameter values with random ones.
+It replaces IP v4, IP v6 and query parameter values with random ones.
 
 To keep the likelihood of the resulting log files, and keep them as useful as possible to test log based tools, there are constraints for the replacements:
 
@@ -22,15 +22,21 @@ To keep the likelihood of the resulting log files, and keep them as useful as po
 * A replacement is always the size of the replaced
 * localhost IP aren't replaced
 
-:warning: Anolog comes without any kind of garantee. If a file is converted with anolog, it may still contain private data and may still help an attacker.
+:warning: Anolog comes without any kind of garantee. If a file is converted with Anolog, it may still contain private data and may still help an attacker.
 
 ## Installation:
 
-You need the [rust toolchain](https://rustup.rs).
+### From source
+
+This is the best solution when you already have the [rust toolchain](https://rustup.rs).
 
 ```bash
 cargo install anolog
 ```
+
+### From precompiled binaries
+
+I made them available in https://dystroy.org/anolog/download
 
 ## Usage:
 
