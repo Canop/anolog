@@ -16,7 +16,7 @@ Anolog anonymizes access log files.
 
 It replaces IP v4, IP v6 and query parameter values with random ones.
 
-To keep the likelihood of the resulting log files, and keep them as useful as possible to test log based tools, there are constraints for the replacements:
+To keep log files as useful as possible for analysis, there are constraints for the replacements:
 
 * All strings are consistently replaced: A string is always, in the same file, replaced by the same value, which allows for example to keep the validity of visit analysis
 * A replacement is always the size of the replaced
