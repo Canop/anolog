@@ -11,10 +11,10 @@ dependencies = [
 
 [[package]]
 name = "anolog"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
+ "fnv",
  "lazy-regex",
- "lazy_static",
  "rand",
  "regex",
 ]
@@ -24,6 +24,12 @@ name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
+name = "fnv"
+version = "1.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
 name = "getrandom"
@@ -38,18 +44,13 @@ dependencies = [
 
 [[package]]
 name = "lazy-regex"
-version = "0.1.4"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83a32b42cf4770f191a2899a4b565d124d888d3f7fdbdd30ad98cf2c1d2b470f"
+checksum = "927b2672eaeee74af46448cd6ce01a53125a4959261dca834bc28115e3b24e00"
 dependencies = [
- "lazy_static",
+ "once_cell",
+ "regex",
 ]
-
-[[package]]
-name = "lazy_static"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
@@ -62,6 +63,12 @@ name = "memchr"
 version = "2.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ee1c47aaa256ecabcaea351eae4a9b01ef39ed810004e298d2511ed284b1525"
+
+[[package]]
+name = "once_cell"
+version = "1.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
 
 [[package]]
 name = "ppv-lite86"

@@ -1,13 +1,12 @@
 use {
+    fnv::FnvHashMap,
     lazy_regex::regex,
-    lazy_static::lazy_static,
     rand::{
         rngs::StdRng,
         Rng,
         SeedableRng,
     },
     std::{
-        collections::HashMap,
         net::Ipv6Addr,
         ops::Range,
         str::FromStr,
@@ -24,7 +23,7 @@ pub struct ChangeStats {
 }
 
 pub struct Transformer {
-    repl: HashMap<String, Box<[u8]>>,
+    repl: FnvHashMap<String, Box<[u8]>>,
     rng: StdRng,
     pub stats: ChangeStats,
 }
